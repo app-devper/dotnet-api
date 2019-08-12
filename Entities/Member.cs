@@ -19,6 +19,5 @@ namespace WebApi.Entities
         public string ProfilePic { get; set; }
         [BsonElement("createdDate")]
         public DateTime CreatedDate { get; set; }
-
     }
 }

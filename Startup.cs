@@ -20,7 +20,7 @@ namespace WebApi
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -71,6 +71,10 @@ namespace WebApi
                 .AllowAnyHeader());
 
             app.UseAuthentication();
+            // Handles exceptions and generates a custom response body
+            app.UseExceptionHandler("/errors/500");
+            // Handles non-success status codes with empty body
+            app.UseStatusCodePagesWithReExecute("/errors/{0}");
             
             app.UseMvc();
         }

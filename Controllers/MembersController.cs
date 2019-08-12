@@ -23,5 +23,16 @@ namespace WebApi.Controllers
             var result = _memberService.GetMembers(queryParam.Page, queryParam.Limit);
             return Ok(result);
         }
+        
+        [HttpGet("{id:length(24)}")]
+        public IActionResult GetMember(string id)
+        {
+            var result = _memberService.GetMember(id);
+            if (result == null)
+            {
+                return NotFound(new { message = "Member not found" });
+            }
+            return Ok(result);
+        }
     }
 }

@@ -34,7 +34,7 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "POST body is null" });
             }
 
-            var user = _userService.AuthenticateAsync(userParam.Username, userParam.Password);
+            var user = _userService.Authenticate(userParam.Username, userParam.Password);
             if (user == null)
             {
                 return BadRequest(new { message = "Username or password is incorrect" });
