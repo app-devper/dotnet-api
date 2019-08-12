@@ -45,7 +45,7 @@ namespace WebApi.Controllers
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new []
+                Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, user.Id)
                 }),
@@ -58,9 +58,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetUsers([FromQuery(Name = "page")] int page = 1, [FromQuery(Name = "limit")] int limit = 20)
+        public IActionResult GetUsers([FromQuery] Query queryParam)
         {
-            var result = _userService.GetUsers(page, limit);
+            var result = _userService.GetUsers(queryParam.Page, queryParam.Limit);
             return Ok(result);
         }
 

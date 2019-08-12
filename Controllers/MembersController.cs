@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Services;
+using WebApi.Helpers;
 
 namespace WebApi.Controllers
 {
@@ -17,9 +18,9 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetMembers([FromQuery(Name = "page")] int page = 1, [FromQuery(Name = "limit")] int limit = 20)
+        public IActionResult GetMembers([FromQuery] Query queryParam)
         {
-            var result = _memberService.GetMembers(page, limit);
+            var result = _memberService.GetMembers(queryParam.Page, queryParam.Limit);
             return Ok(result);
         }
     }
