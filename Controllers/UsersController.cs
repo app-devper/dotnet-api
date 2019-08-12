@@ -17,7 +17,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private IUserService _userService;
+        private readonly IUserService _userService;
         private readonly AppSettings _appSettings;
         public UsersController(IOptions<AppSettings> appSettings, IUserService userService)
         {
@@ -30,18 +30,22 @@ namespace WebApi.Controllers
         public IActionResult Authenticate([FromBody]User userParam)
         {
             if (userParam == null)
+            {
                 return BadRequest(new { message = "POST body is null" });
+            }
 
             var user = _userService.AuthenticateAsync(userParam.Username, userParam.Password);
             if (user == null)
+            {
                 return BadRequest(new { message = "Username or password is incorrect" });
+            }
 
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new []
                 {
                     new Claim(ClaimTypes.Name, user.Id)
                 }),
@@ -66,7 +70,7 @@ namespace WebApi.Controllers
             var result = _userService.GetUser(id);
             if (result == null)
             {
-                return NotFound();
+                return NotFound(new { message = "User not found" });
             }
             result.Password = null;
             return Ok(result);

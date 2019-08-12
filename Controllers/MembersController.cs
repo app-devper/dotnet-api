@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Services;
-using WebApi.Helpers;
-using Microsoft.Extensions.Options;
 
 namespace WebApi.Controllers
 {
@@ -11,11 +9,10 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     public class MembersController : ControllerBase
     {
-        private IMemberService _memberService;
-        private readonly AppSettings _appSettings;
-        public MembersController(IOptions<AppSettings> appSettings, IMemberService memberService)
+        private readonly IMemberService _memberService;
+
+        public MembersController(IMemberService memberService)
         {
-            _appSettings = appSettings.Value;
             _memberService = memberService;
         }
 

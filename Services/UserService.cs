@@ -29,7 +29,7 @@ namespace WebApi.Services
         {
             var user = _context.Users.Find<User>(item => item.Username == username && item.Password == password).FirstOrDefault();
             // return null if user not found
-            if (user == null) return null;
+            if (user == null) { return null; }
             // remove password before returning
             user.Password = null;
             return user;
@@ -63,7 +63,7 @@ namespace WebApi.Services
             paging.TotalPages = Convert.ToInt32(totalPages);
             return paging;
         }
-        
+
         public User GetUser(string id) => _context.Users.Find(user => user.Id == id).FirstOrDefault();
     }
 }
