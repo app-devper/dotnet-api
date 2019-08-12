@@ -2,18 +2,26 @@
 using Microsoft.AspNetCore.Authorization;
 using WebApi.Services;
 using WebApi.Entities;
+using WebApi.Helpers;
+using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System;
 
 namespace WebApi.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private IUserService _userService;
-
-        public UsersController(IUserService userService)
+        private readonly AppSettings _appSettings;
+        public UsersController(IOptions<AppSettings> appSettings, IUserService userService)
         {
+            _appSettings = appSettings.Value;
             _userService = userService;
         }
 
@@ -24,18 +32,44 @@ namespace WebApi.Controllers
             if (userParam == null)
                 return BadRequest(new { message = "POST body is null" });
 
-            var user = _userService.Authenticate(userParam.Username, userParam.Password);
+            var user = _userService.AuthenticateAsync(userParam.Username, userParam.Password);
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(user);
+            // authentication successful so generate jwt token
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, user.Id)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var accessToken = tokenHandler.WriteToken(token);
+            return Ok(new { user, accessToken });
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetUsers([FromQuery(Name = "page")] int page = 1, [FromQuery(Name = "limit")] int limit = 20)
         {
-            var users =  _userService.GetAll();
-            return Ok(users);
+            var result = _userService.GetUsers(page, limit);
+            return Ok(result);
+        }
+
+        [HttpGet("{id:length(24)}")]
+        public IActionResult GetUser(string id)
+        {
+            var result = _userService.GetUser(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            result.Password = null;
+            return Ok(result);
         }
     }
 }

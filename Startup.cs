@@ -8,6 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
+using WebApi.Context;
 
 namespace WebApi
 {
@@ -52,7 +54,11 @@ namespace WebApi
             });
 
             // configure DI for application services
+            services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(appSettings.ConnectionString));
+
+            services.AddTransient<IAppContext, AppContext>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMemberService, MemberService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
